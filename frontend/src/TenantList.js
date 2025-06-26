@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import LedgerModal from './LedgerModal';
 
 function TenantList() {
     const [tenants, setTenants] = useState([]);
     const [error, setError] = useState(null);
+    const [selectedTenant, setSelectedTenant] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         fetch('/api/tenants/')
@@ -19,6 +22,16 @@ function TenantList() {
             });
     }, []);
 
+    const openLedger = (tenant) => {
+        setSelectedTenant(tenant);
+        setIsModalOpen(true);
+    };
+
+    const closeLedger = () => {
+        setIsModalOpen(false);
+        setSelectedTenant(null);
+    };
+
     if (error) {
         return <div>Error loading tenants: {error.message}</div>;
     }
@@ -26,6 +39,11 @@ function TenantList() {
     return (
         <div className="tenant-list">
             <h2>Tenants</h2>
+            <LedgerModal
+                tenant={selectedTenant}
+                open={isModalOpen}
+                onClose={closeLedger}
+            />
             {tenants.length === 0 ? (
                 <p>No tenants found.</p>
             ) : (
@@ -44,7 +62,7 @@ function TenantList() {
                                 <td>{tenant.id}</td>
                                 <td>{tenant.name}</td>
                                 <td>{tenant.unit}</td>
-                                <td><button>View Ledger</button></td>
+                                <td><button onClick={() => openLedger(tenant)}>View Ledger</button></td>
                             </tr>
                         ))}
                     </tbody>
